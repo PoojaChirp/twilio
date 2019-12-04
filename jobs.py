@@ -1,32 +1,29 @@
 from flask import Flask, request
 import json
 import requests
-#  incoming use import request
-#  outgoing use import requests
-
 app = Flask('bootcamp')
-
 @app.route('/ingredients', methods=['GET', 'POST'])
-def weather():
+def ingredients():
+  items = request.values['Body']
 
-  city = request.values['Body']
+  url = 'https://api.nal.usda.gov/fdc/v1/search?api_key=CvpvIrihyzoxCvbBpjSI992YwbXfUQMkDDLJtGhg'
+  myobj = {'generalSearchInput': items}
 
-  response = requests.get('https://jobs.github.com/positions.json', 
-  params={
-        'description': 'python',
-        'location': city
-    })
+  headers = {
+     "Content-type": "application/json",
+ }
 
-  data = json.loads(response.content)
+  response = requests.post(url, headers=headers, data = json.dumps(myobj))
 
-  temp = data[ 0]
-  company =temp["company"]
-  title = temp["title"]
+  output = json.loads(response.content)
 
-
-  return """<?xml version="1.0" encoding="UTF-8"?
-  ><Response><Message>"""+"the company is "+ str(company)+ "and title is" + str(title) + "</Message></Response>" ""
-
-
-
+  foods = output.get('foods')
+  description=""
+  ing = ""
+  for i in foods:
+     ing = i.get('ingredients')
+     if ing:
+        description = i.get('description')
+        break
+  return """<?xml version="1.0" encoding="UTF-8"?><Response><Message>"""+"The List of ingredients in the NAME- "+ str(description)  +": is "+str(ing)+"</Message></Response>"
 app.run(debug=True, host='0.0.0.0', port=8080)
