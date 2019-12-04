@@ -1,29 +1,32 @@
 from flask import Flask, request
 import json
 import requests
+#  incoming use import request
+#  outgoing use import requests
+
 app = Flask('bootcamp')
+
 @app.route('/ingredients', methods=['GET', 'POST'])
-def ingredients():
-  items = request.values['Body']
+def weather():
 
-  url = 'https://api.nal.usda.gov/fdc/v1/search?api_key=CvpvIrihyzoxCvbBpjSI992YwbXfUQMkDDLJtGhg'
-  myobj = {'generalSearchInput': items}
+  city = request.values['Body']
 
-  headers = {
-     "Content-type": "application/json",
- }
+  response = requests.get('https://jobs.github.com/positions.json', 
+  params={
+        'description': 'python',
+        'location': city
+    })
 
-  response = requests.post(url, headers=headers, data = json.dumps(myobj))
+  data = json.loads(response.content)
 
-  output = json.loads(response.content)
+  temp = data[ 0]
+  company =temp["company"]
+  title = temp["title"]
 
-  foods = output.get('foods')
-  description=""
-  ing = ""
-  for i in foods:
-     ing = i.get('ingredients')
-     if ing:
-        description = i.get('description')
-        break
-  return """<?xml version="1.0" encoding="UTF-8"?><Response><Message>"""+"The List of ingredients in the NAME- "+ str(description)  +": is "+str(ing)+"</Message></Response>"
+
+  return """<?xml version="1.0" encoding="UTF-8"?
+  ><Response><Message>"""+"the company is "+ str(company)+ "and title is" + str(title) + "</Message></Response>" ""
+
+
+
 app.run(debug=True, host='0.0.0.0', port=8080)
